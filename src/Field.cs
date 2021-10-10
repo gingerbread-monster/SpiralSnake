@@ -4,14 +4,17 @@ namespace SpiralSnake
 {
     class Field
     {
-        public int[,] Matrix;
+        const char freePosition = '⬛';
+        const char occupiedPosition = '⬜';
+
+        public char[,] Matrix;
 
         public int MatrixSize { get; }
 
         public Field(int matrixSize)
         {
             MatrixSize = matrixSize;
-            Matrix = new int [MatrixSize, MatrixSize];
+            Matrix = new char [MatrixSize, MatrixSize];
         }
 
         public bool PositionIsWithinRange(int rowIndex, int columnIndex)
@@ -25,7 +28,7 @@ namespace SpiralSnake
             if (!PositionIsWithinRange(rowIndex, columnIndex))
                 throw new IndexOutOfRangeException();
 
-            return Matrix[rowIndex, columnIndex] == 0;
+            return Matrix[rowIndex, columnIndex] == freePosition;
         }
 
         public void Occupy(int rowIndex, int columnIndex)
@@ -33,7 +36,7 @@ namespace SpiralSnake
             if (!PositionIsWithinRange(rowIndex, columnIndex))
                 throw new IndexOutOfRangeException();
 
-            Matrix[rowIndex, columnIndex] = 1;
+            Matrix[rowIndex, columnIndex] = occupiedPosition;
         }
 
         public void Clear()
@@ -43,7 +46,13 @@ namespace SpiralSnake
 
         public void Reset()
         {
-            Matrix.Initialize();
+            for (int i = 0; i < MatrixSize; i++)
+            {
+                for (int j = 0; j < MatrixSize; j++)
+                {
+                    Matrix[i, j] = freePosition;
+                }
+            }
         }
 
         public void Print()
@@ -52,7 +61,7 @@ namespace SpiralSnake
             {
                 for (int j = 0; j < MatrixSize; j++)
                 {
-                    Console.Write(Matrix[i,j] + " ");
+                    Console.Write(Matrix[i,j]);
                 }
 
                 Console.WriteLine();

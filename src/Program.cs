@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace SpiralSnake
 {
@@ -6,6 +6,8 @@ namespace SpiralSnake
     {
         static void Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
             int fieldSize = 12;
 
             _ = new SpiralSnake(fieldSize).Run();

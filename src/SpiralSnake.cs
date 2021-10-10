@@ -15,7 +15,7 @@ namespace SpiralSnake
 
         int _delay;
 
-        int _snakeLength;
+        int _snakeLengthCounter;
 
         public SpiralSnake(
             int fieldSize,
@@ -41,7 +41,7 @@ namespace SpiralSnake
             {
                 Console.WriteLine();
                 Console.WriteLine(exception.Message);
-                Console.WriteLine($"Snake length: {_snakeLength}");
+                Console.WriteLine($"Snake length: {_snakeLengthCounter}");
             }
         }
 
@@ -78,7 +78,7 @@ namespace SpiralSnake
 
             _field.Occupy(_headPositionRow, _headPositionColumn);
 
-            _snakeLength++;
+            _snakeLengthCounter++;
         }
 
         bool TryMove(int? rowOffset = null, int? columnOffset = null)
@@ -165,15 +165,15 @@ namespace SpiralSnake
 
         void Reset()
         {
-            _headPositionRow = _headPositionColumn = 0;
+            _headPositionRow = _headPositionColumn = 0; // snake head starting position
 
             _field.Reset();
 
-            _field.Matrix[_headPositionRow, _headPositionColumn] = 1;
+            _field.Occupy(_headPositionRow, _headPositionColumn);
 
             _moveDirection = MoveDirection.Right;
 
-            _snakeLength = 1;
+            _snakeLengthCounter = 1;
         }
 
         enum MoveDirection
