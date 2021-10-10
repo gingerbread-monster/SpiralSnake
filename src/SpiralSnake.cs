@@ -55,15 +55,15 @@ namespace SpiralSnake
 
                 await Task.Delay(_delay);
 
-                MoveV2();
+                Move();
             }
         }
 
-        void MoveV2()
+        void Move()
         {
-            if (!TryMoveV2())
+            if (!TryMove())
             {
-                if (!TryChangeDirectionV2())
+                if (!TryChangeDirection())
                 {
                     throw new DeadEndException();
                 }
@@ -81,7 +81,7 @@ namespace SpiralSnake
             _snakeLength++;
         }
 
-        bool TryMoveV2(int? rowOffset = null, int? columnOffset = null)
+        bool TryMove(int? rowOffset = null, int? columnOffset = null)
         {
             var offsets = TranslateDirectionToOffset(_moveDirection);
 
@@ -110,13 +110,13 @@ namespace SpiralSnake
             return true;
         }
 
-        bool TryChangeDirectionV2()
+        bool TryChangeDirection()
         {
             var newMoveDirection = GetNewDirection(_moveDirection);
 
             var newOffsets = TranslateDirectionToOffset(newMoveDirection);
 
-            var canMoveForward = TryMoveV2(newOffsets.rowOffset, newOffsets.columnOffset);
+            var canMoveForward = TryMove(newOffsets.rowOffset, newOffsets.columnOffset);
 
             if (_field.MatrixSize % 2 == 0 && canMoveForward) // check for dead end on matrix with even number size
             {
