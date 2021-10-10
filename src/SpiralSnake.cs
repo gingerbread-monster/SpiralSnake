@@ -81,37 +81,6 @@ namespace SpiralSnake
             _snakeLength++;
         }
 
-        void Move()
-        {
-            if (!TryMove())
-            {
-                if (!TryChangeDirection())
-                {
-                    throw new DeadEndException();
-                }
-
-                _moveDirection = GetNewDirection(_moveDirection);
-            }
-
-            switch (_moveDirection)
-            {
-                case MoveDirection.Right:
-                    _headPositionColumn++; 
-                    break;
-                case MoveDirection.Down:
-                    _headPositionRow++; 
-                    break;
-                case MoveDirection.Left:
-                    _headPositionColumn--; 
-                    break;
-                case MoveDirection.Up:
-                    _headPositionRow--; 
-                    break;
-            }
-
-            _field.Matrix[_headPositionRow, _headPositionColumn] = 1;
-        }
-
         bool TryMoveV2(int? rowOffset = null, int? columnOffset = null)
         {
             var offsets = TranslateDirectionToOffset(_moveDirection);
@@ -141,77 +110,6 @@ namespace SpiralSnake
             return true;
         }
 
-        bool TryMove()
-        {
-            bool withinRange;
-
-            if (_moveDirection == MoveDirection.Right)
-            {
-                withinRange = _headPositionColumn + 1 < _field.MatrixSize; // on next cell
-
-                if (withinRange)
-                {
-                    withinRange = _headPositionColumn + 2 < _field.MatrixSize; // on second next cell
-                    if (withinRange)
-                    {
-                        return _field.Matrix[_headPositionRow, _headPositionColumn + 2] != 1; // snake's head not gonna touch the tail
-                    }
-                    else return true;
-                }
-                else return false;
-            }
-
-            if (_moveDirection == MoveDirection.Down)
-            {
-                withinRange = _headPositionRow + 1 < _field.MatrixSize; // on next cell
-
-                if (withinRange)
-                {
-                    withinRange = _headPositionRow + 2 < _field.MatrixSize; // on second next cell
-                    if (withinRange)
-                    {
-                        return _field.Matrix[_headPositionRow + 2, _headPositionColumn] != 1; // snake's head not gonna touch the tail
-                    }
-                    else return true;
-                }
-                else return false;
-            }
-
-            if (_moveDirection == MoveDirection.Left)
-            {
-                withinRange = _headPositionColumn - 1 >= 0; // on next cell
-
-                if (withinRange)
-                {
-                    withinRange = _headPositionColumn - 2 >= 0; // on second next cell
-                    if (withinRange)
-                    {
-                        return _field.Matrix[_headPositionRow, _headPositionColumn - 2] != 1; // snake's head not gonna touch the tail
-                    }
-                    else return true;
-                }
-                else return false;
-            }
-
-            if (_moveDirection == MoveDirection.Up)
-            {
-                withinRange = _headPositionRow - 1 >= 0; // on next cell
-
-                if (withinRange)
-                {
-                    withinRange = _headPositionRow - 2 >= 0; // on second next cell
-                    if (withinRange)
-                    {
-                        return _field.Matrix[_headPositionRow - 2, _headPositionColumn] != 1; // snake's head not gonna touch the tail
-                    }
-                    else return true;
-                }
-                else return false;
-            }
-
-            throw new InvalidOperationException("Movement direction is undefined.");
-        }
-
         bool TryChangeDirectionV2()
         {
             var newMoveDirection = GetNewDirection(_moveDirection);
@@ -238,44 +136,6 @@ namespace SpiralSnake
             }
 
             return canMoveForward;
-        }
-
-        bool TryChangeDirection()
-        {
-            int nextPositionRow;
-            int nextPositionColumn;
-
-            // check rotate is possible relatively to current movement direction
-            if (_moveDirection == MoveDirection.Right)
-            {
-                nextPositionRow = _headPositionRow + 1;
-                nextPositionColumn = _headPositionColumn;
-
-                return _field.Matrix[nextPositionRow + 1, nextPositionColumn] != 1; // snake's head not gonna touch the tail 
-            }
-            if (_moveDirection == MoveDirection.Down)
-            {
-                nextPositionRow = _headPositionRow;
-                nextPositionColumn = _headPositionColumn - 1;
-
-                return _field.Matrix[nextPositionRow, nextPositionColumn - 1] != 1;
-            }
-            if (_moveDirection == MoveDirection.Left)
-            {
-                nextPositionRow = _headPositionRow - 1;
-                nextPositionColumn = _headPositionColumn;
-
-                return _field.Matrix[nextPositionRow - 1, nextPositionColumn] != 1;
-            }
-            if (_moveDirection == MoveDirection.Up)
-            {
-                nextPositionRow = _headPositionRow;
-                nextPositionColumn = _headPositionColumn + 1;
-
-                return _field.Matrix[nextPositionRow, nextPositionColumn + 1] != 1;
-            }
-
-            throw new InvalidOperationException("Movement direction is undefined.");
         }
 
         static (int rowOffset, int columnOffset) TranslateDirectionToOffset(MoveDirection direction)
