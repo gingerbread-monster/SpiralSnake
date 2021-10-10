@@ -15,14 +15,18 @@ namespace SpiralSnake
 
         int _delay;
 
-        public SpiralSnake(int fieldSize)
+        int _snakeLength;
+
+        public SpiralSnake(
+            int fieldSize,
+            int delayBetweenMovement = 200)
         {
             if (fieldSize < 5)
                 throw new ArgumentException("Invalid field size.");
 
             _field = new Field(fieldSize);
 
-            _delay = 150;
+            _delay = delayBetweenMovement;
 
             Reset();
         }
@@ -37,6 +41,7 @@ namespace SpiralSnake
             {
                 Console.WriteLine();
                 Console.WriteLine(exception.Message);
+                Console.WriteLine($"Snake length: {_snakeLength}");
             }
         }
 
@@ -50,8 +55,30 @@ namespace SpiralSnake
 
                 await Task.Delay(_delay);
 
-                Move();
+                MoveV2();
             }
+        }
+
+        void MoveV2()
+        {
+            if (!TryMoveV2())
+            {
+                if (!TryChangeDirectionV2())
+                {
+                    throw new DeadEndException();
+                }
+
+                _moveDirection = GetNewDirection(_moveDirection);
+            }
+
+            var offsets = TranslateDirectionToOffset(_moveDirection);
+
+            _headPositionRow += offsets.rowOffset;
+            _headPositionColumn += offsets.columnOffset;
+
+            _field.Occupy(_headPositionRow, _headPositionColumn);
+
+            _snakeLength++;
         }
 
         void Move()
@@ -83,6 +110,35 @@ namespace SpiralSnake
             }
 
             _field.Matrix[_headPositionRow, _headPositionColumn] = 1;
+        }
+
+        bool TryMoveV2(int? rowOffset = null, int? columnOffset = null)
+        {
+            var offsets = TranslateDirectionToOffset(_moveDirection);
+
+            if (rowOffset != null && columnOffset != null)
+            {
+                offsets.rowOffset = rowOffset.Value;
+                offsets.columnOffset = columnOffset.Value;
+            }
+
+            var nextPositionRow = _headPositionRow + offsets.rowOffset;
+            var nextPositionColumn = _headPositionColumn + offsets.columnOffset;
+
+            if (!_field.PositionIsWithinRange(nextPositionRow, nextPositionColumn))
+                return false;
+
+            var secondNextRow = _headPositionRow + offsets.rowOffset * 2;
+            var secondNextColumn = _headPositionColumn + offsets.columnOffset * 2;
+            if (_field.PositionIsWithinRange(secondNextRow, secondNextColumn))
+            {
+                if (!_field.PositionIsFree(secondNextRow, secondNextColumn))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         bool TryMove()
@@ -154,6 +210,34 @@ namespace SpiralSnake
             }
 
             throw new InvalidOperationException("Movement direction is undefined.");
+        }
+
+        bool TryChangeDirectionV2()
+        {
+            var newMoveDirection = GetNewDirection(_moveDirection);
+
+            var newOffsets = TranslateDirectionToOffset(newMoveDirection);
+
+            var canMoveForward = TryMoveV2(newOffsets.rowOffset, newOffsets.columnOffset);
+
+            if (_field.MatrixSize % 2 == 0 && canMoveForward) // check for dead end on matrix with even number size
+            {
+                var nextPositionRow = _headPositionRow + newOffsets.rowOffset;
+                var nextPositionColumn = _headPositionColumn + newOffsets.columnOffset;
+
+                var currentOffsets = TranslateDirectionToOffset(_moveDirection);
+
+                var reversedCurrentRowOffset = -currentOffsets.rowOffset;
+                var reversedCurrentColumnOffset = -currentOffsets.columnOffset;
+
+                var rightDiagonalCellIsOccupied = !_field.PositionIsFree(
+                    nextPositionRow + reversedCurrentRowOffset,
+                    nextPositionColumn + reversedCurrentColumnOffset);
+
+                canMoveForward = !rightDiagonalCellIsOccupied;
+            }
+
+            return canMoveForward;
         }
 
         bool TryChangeDirection()
@@ -229,6 +313,7 @@ namespace SpiralSnake
 
             _moveDirection = MoveDirection.Right;
 
+            _snakeLength = 1;
         }
 
         enum MoveDirection

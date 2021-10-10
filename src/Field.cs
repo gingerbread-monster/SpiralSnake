@@ -28,6 +28,14 @@ namespace SpiralSnake
             return Matrix[rowIndex, columnIndex] == 0;
         }
 
+        public void Occupy(int rowIndex, int columnIndex)
+        {
+            if (!PositionIsWithinRange(rowIndex, columnIndex))
+                throw new IndexOutOfRangeException();
+
+            Matrix[rowIndex, columnIndex] = 1;
+        }
+
         public void Clear()
         {
             Console.Clear();
